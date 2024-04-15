@@ -9,6 +9,9 @@ import re
 import requests 
 import os 
 from pypdf import PdfReader 
+from tqdm import tqdm 
+import pandas as pd 
+import numpy as np
 
 # executable path is directory path to Microsoft Edge driver
 
@@ -215,3 +218,20 @@ def generate_chat_response1(prompt):
 
     reply = chat.choices[0]["message"]["content"]
     print(f"ChatGPT: {reply}")
+
+
+
+# Example usage
+AC_members = pd.read_csv("Acceleration_Consortium_Members.csv")
+AC_members_without_google_scholar_profiles_indices = AC_members[AC_members["Google Scholar profile"].isna()].index.to_list()
+AC_members_with_google_scholar_profiles = AC_members.drop(AC_members_without_google_scholar_profiles_indices).reset_index(drop = True)
+
+all_article_titles, all_published_years, all_citations, all_article_urls = PI_Google_Scholar_profiles(
+    AC_members_with_google_scholar_profiles["Google Scholar profile"].values[:2], 
+    "msedgedriver.exe"
+)
+
+all_author_names, all_journal_names, all_abstracts, all_pdf_links = google_scholar_author_names_journal_names_abstracts_pdf_links(
+    all_article_urls[0][:10], 
+    "msedgedriver.exe"
+)
